@@ -1,9 +1,10 @@
 #!user/bin/env python
 import tkinter as tk
+import traceback
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from tkinter.messagebox import *
-
+import pywintypes
 import logging
 import requests
 import time
@@ -20,7 +21,7 @@ root = tk.Tk()
 def selectPath():
     path_ = askdirectory()
     path.set(path_)
-
+    # print()
 
 # 设置标签信息
 path = StringVar()  # 路径变量（可变字符串)
@@ -50,8 +51,8 @@ text.grid(row=5, column=1, padx=5, pady=5, sticky=N + W + W + E)
 """
 # options = webdriver.ChromeOptions()
 # options.add_argument(
-#     'Cookie="https_waf_cookie=bd552ba2-9643-41c264195f799cd835842a76222544160756; Hm_lvt_435408cf352a14d68ef6861b9d51158c=1672458423; csrftoken=H7Ph0wzYGGrb4pBNXzgTU7JD0mC4e9La; http_waf_cookie=91f62ca6-2826-4ff77e27b0795866045a83088628a06352ab; sessionid=1ef1586fd94ac7e0e1fddc5c12197400; yiban_id=44944535; user_id=9449131; Hm_lpvt_435408cf352a14d68ef6861b9d51158c=1672538961"')
-# web = Chrome(executable_path='chromedriver')
+#     'Cookie=""
+# # web = Chrome(executable_path='chromedriver')
 # web.add_cookie("")
 #
 # web.get("https://www.yooc.me/group/6507710/homework/145796/grade")
@@ -72,8 +73,10 @@ def getTask():
         text.see(END)
         text.update()
 
+        # cookie = entry1.get()
         cookie = entry1.get()
-        list_url = entry2.get()
+        # list_url = entry2.get()
+        list_url = "https://www.yooc.me/group/6828525/homework/162730/grade"
         root_url = "https://www.yooc.me"
         headers = {
             'Cookie': cookie,
@@ -111,19 +114,20 @@ def getTask():
             except IndexError as e:
                 # ("errer: " + student_name[i] + "可能未提交附件")
                 # showerror("error", student_name[i] + "可能未提交附件")
-                text.insert(END, student_name[i] + "可能未提交附件")
+                text.insert(END, student_name[i] + "可能未提交附件 \n")
+                showinfo(title="警示", message=student_name[i] + "可能未提交附件 \n")
                 text.see(END)
                 text.update()
-        showinfo(title="提示", message="学生：" + " ".join(student_name))
-        text.insert(END, "学生：" + " ".join(student_name))
+        # showinfo(title="提示", message="全部学生：" + " ".join(student_name))
+        text.insert(END, "全部学生" + str(len(student_name)) + ":" + " ".join(student_name) + "\n")
         text.see(END)
         text.update()
         # win32api.MessageBox(0, "学生：" + " ".join(student_name),
         #                     "提示！",win32con.MB_OK)
         # print("学生：" + " ".join(student_name))
-        showinfo(title="警示", message="附件：" + str(len(attachment_url)) + " 学生个数:" + str(len(student_name)) + "" if len(
-            attachment_url) == len(
-            student_name) else "附件与学生个数不一致，可能有同学未交附件")
+        showinfo(title="警示", message="附件："
+                                     "" + str(len(attachment_url)) + " 学生个数:" + str(len(student_name)) + "" if len(
+            attachment_url) == len(student_name) else "附件与学生个数不一致，可能有同学未交附件\n")
         # win32api.MessageBox(0, "附件：" + str(len(attachment_url)) + " 学生个数:" + str(len(student_name)) + "" if len(attachment_url) == len(
         #     student_name) else "可能有同学未交附件",
         #                     "提示！",win32con.MB_OK)
@@ -134,18 +138,19 @@ def getTask():
         # 下载附件
         for attachment, filename in zip(attachment_url, attachment_name):
             # showinfo(title="提示", message=attachment + filename)
-            text.insert(END, "正在下载" + attachment + filename)
+            text.insert(END, "正在下载" + attachment + filename + "\n")
             text.see(END)
             text.update()
             # win32api.MessageBox(0, attachment + filename,
             #                     "提示！", win32con.MB_OK)
             # print(attachment, filename)
             # with open(file="./attachments/" + filename, mode="wb") as f:
-            with open(file=str(path) + "/" + filename, mode="wb") as f:
+            print(str(path))
+            with open(file=path.get() + "/" + filename, mode="wb") as f:
                 f.write(requests.get(attachment).content)
             time.sleep(2)
             # print("over!")
-            text.insert(END, attachment + filename + "下载完毕")
+            text.insert(END, attachment + filename + "下载完毕 \n")
             text.see(END)
             text.update()
             # showinfo(title="提示", message="over!")
@@ -158,9 +163,9 @@ def getTask():
     except Exception as e:
         win32api.MessageBox(0, "Cookie填写错误或链接错误！",
                             "警告！", win32con.MB_OK)
-
-
-# logger.warning("all over!!")
+        # e.format_exc()
+        print(traceback.format_exc())
+        # logger.warning("all over!!")
 
 
 # selenium 下载实现
